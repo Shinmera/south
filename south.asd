@@ -17,9 +17,11 @@
   :description "Simple OaUTH library for oAuth1.0"
   :serial T
   :components ((:file "package")
+               (:file "toolkit")
                (:file "oauth"))
   :depends-on (:drakma
                :yason
+               :uuid
                :ironclad
                :cl-ppcre))
 
