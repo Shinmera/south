@@ -95,7 +95,8 @@ Simply generates a signature and appends the proper parameter."
           ((or (string= type "text/plain;charset=utf-8")
                (string= type "text/plain; charset=utf-8")
                (string= type "text/html;charset=utf-8")
-               (string= type "text/html; charset=utf-8"))
+               (string= type "text/html; charset=utf-8")
+               (string= type "application/x-www-form-urlencoded"))
            body)
           (T
            (warn "Do not know how to handle content type: ~a" type)
