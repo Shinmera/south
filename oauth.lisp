@@ -251,7 +251,10 @@ down automatically after a single request."
                             (complete-authentication
                              (ht-func "GET-PARAMETER" "oauth_verifier")
                              (ht-func "GET-PARAMETER" "oauth_token"))
-                            (format standard-output "~&SOUTH: Authentication completed.~%"))
+                            (format standard-output "~&SOUTH: Authentication completed.~%")
+                            (let ((stream (ht-func "SEND-HEADERS")))
+                              (write-sequence (flexi-streams:string-to-octets "SOUTH: Authentication completed.") stream)
+                              (finish-output stream)))
                        (format standard-output "~&SOUTH: Shutting down server.~%")
                        (ht-func "STOP" server))))))
           (push #'dispatcher (symbol-value (ht-symb "*DISPATCH-TABLE*")))
