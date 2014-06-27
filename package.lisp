@@ -17,6 +17,10 @@
    #:*oauth-signature-method*
    #:*oauth-version*
    #:*server-port*
+   #:*oauth/request-token*
+   #:*oauth/authenticate*
+   #:*oauth/authorize*
+   #:*oauth/access-token*
    
    #:oauth-error
    
@@ -31,10 +35,21 @@
    #:target-method
    #:target-parameters
    #:target-headers
-   
+
+   #:reset
+   #:prepare
+   #:with-oauth-environment
    #:signed-request
    #:signed-data-request
    #:signed-stream-request
    #:pin-request-token
    #:complete-authentication
-   #:initiate-authentication))
+   #:initiate-authentication
+   #:oauth/request-token
+   #:oauth/authenticate
+   #:oauth/authorize
+   #:oauth/access-token
+   #:initiate-server-authentication)
+  ;; toolkit.lisp
+  (:export
+   #:*external-format*))
