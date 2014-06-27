@@ -18,11 +18,40 @@
 (defvar *oauth/access-token* NIL)
 (defvar *server-port* 8989)
 
-(defun oauth-reset ()
+(defun reset ()
+  "Resets the internal API-KEY, API-SECRET, ACCESS-TOKEN and ACCESS-SECRET to NIL.
+This does not change the oauth request URLs."
   (setf *oauth-api-key* NIL
         *oauth-api-secret* NIL
         *oauth-access-token* NIL
         *oauth-access-secret* NIL))
+
+(defun prepare (&key oauth/request-token oauth/authorize (oauth/authenticate oauth/authorize) oauth/access-token api-key api-secret)
+  "Cosmetic function to set the oauth request URLs and api-key and -secret.
+This only sets the internal value of the parameter if it is non-NIL."
+  (when oauth/request-token (setf *oauth/request-token* oauth/request-token))
+  (when oauth/authorize (setf *oauth/authorize* oauth/authorize))
+  (when oauth/authenticate (setf *oauth/authenticate* oauth/authenticate))
+  (when oauth/access-token (setf *oauth/access-token* oauth/access-token))
+  (when api-key (setf *oauth-api-key* api-key))
+  (when api-secret (setf *oauth-api-secret* api-secret)))
+
+(defmacro with-oauth-environment ((&key oauth/request-token oauth/authorize (oauth/authenticate oauth/authorize) oauth/access-token
+                                     signature-method version
+                                     api-key api-secret access-token access-secret) &body body)
+  "Establishes an environment for all oauth related special variables.
+Unless a non-NIL value is provided for a parameter it is bound to the current value of the according special variable."
+  `(let ((*oauth-api-key* (or ,api-key *oauth-api-key*))
+         (*oauth-api-secret* (or ,api-secret *oauth-api-secret*))
+         (*oauth-access-token* (or ,access-token *oauth-access-token*))
+         (*oauth-access-secret* (or ,access-secret *oauth-access-secret*))
+         (*oauth-signature-method* (or ,signature-method *oauth-signature-method*))
+         (*oauth-version* (or ,version *oauth-version*))
+         (*oauth/request-token* (or ,oauth/request-token *oauth/request-token*))
+         (*oauth/authenticate* (or ,oauth/authenticate *oauth/authenticate*))
+         (*oauth/authorize* (or ,oauth/authorize *oauth/authorize*))
+         (*oauth/access-token* (or ,oauth/access-token *oauth/access-token*)))
+     ,@body))
 
 (define-condition oauth-error (error) ())
 
@@ -261,9 +290,10 @@ down automatically after a single request."
           (push #'dispatcher (symbol-value (ht-symb "*DISPATCH-TABLE*")))
           (oauth/authenticate (format NIL "http://localhost:~d/callback" *server-port*)))))))
 
-(defun initiate-authentication (&key (method :PIN) (api-key *oauth-api-key*) (api-secret *oauth-api-secret*))
+(defun initiate-authentication (&key (method :SERVER) (api-key *oauth-api-key*) (api-secret *oauth-api-secret*))
   "Starts the authentication process and returns an URL that the user has to visit.
 METHOD can be one of :PIN :SERVER or a string designating a callback URL.
+Note that the :PIN method is NOT STANDARD and thus might not be available for your service.
 See OAUTH/AUTHORIZE, INITIATE-SERVER-AUTHENTICATION and OAUTH/AUTHENTICATE respectively."
   (setf *oauth-api-key* api-key
         *oauth-api-secret* api-secret
