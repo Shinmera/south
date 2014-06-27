@@ -1,0 +1,95 @@
+<!DOCTYPE html><!--
+  This file is a part of South
+  (c) 2014 TymoonNET/NexT http://tymoon.eu (shinmera@tymoon.eu)
+  Author: Nicolas Hafner <shinmera@tymoon.eu>
+  !--><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8"/>
+    <title>South - About</title>
+    <style type="text/css">
+      code{font-family: Consolas, Inconsolata, monospace;}
+      code.line{margin-left: 20px;}
+      code a{text-decoration: none; color: blue;}
+      h3{display: inline-block;margin:0;padding:0;}
+      .docs{list-style: none;}
+      .docs li{margin-bottom: 20px;}
+      .docs pre{margin: 0 0 0 10px; white-space: pre-wrap;}
+    </style>
+  </head>
+  <body>
+    <header>
+      <img src="south-logo.png" alt="South"/><br />
+      Simple OaUTH
+      <h1>v0.2.0</h1>
+    </header>
+    <div id="content">
+      <article>
+        <header><h2>What is South?</h2></header>
+        <p>South is a library aiming to provide a simple layer for interaction with <a href="http://oauth.net/core/1.0a/">oAuth 1.0a</a> services.</p>
+        <p>This library was split off from the <a href="https://shinmera.github.com/chirp">Chirp</a> twitter library to provide a more generalised access layer.</p>
+      </article>
+      <article>
+        <header><h2>How To</h2></header>
+        <p>
+          Load South through Quicklisp or ASDF:
+        </p>
+        <code class="line">(ql:quickload :south)</code>
+        <p>
+          First you need to tell South about the service you want to interact with. For this you will need at least the following three URLs: <br />
+          <code>oauth/request-token</code> &nbsp;&nbsp;&nbsp; <code>oauth/authorize</code> &nbsp;&nbsp;&nbsp; <code>oauth/access-token</code><br />
+          As well as the <code>api-key</code> and <code>api-secret</code> of your oAuth application that you want to use to connect. To set up South you can either set the according special variables directly or use the <code><a href="#PREPARE">prepare</a></code> function:
+        </p>
+        <pre><code class="line">(<a href="#PREPARE">south:prepare</a>
+    :oauth/request-token &quot;https://api.twitter.com/oauth/request_token&quot;
+    :oauth/authenticate &quot;https://api.twitter.com/oauth/authenticate&quot;
+    :oauth/authorize &quot;https://api.twitter.com/oauth/authorize&quot;
+    :oauth/access-token &quot;https://api.twitter.com/oauth/access_token&quot;
+    :api-key key
+    :api-secret secret)</code></pre>
+        <p>Twitter requires an additional <code>authenticate</code> URL, which is otherwise set to the same as the <code>authorize</code> address. To start the authentication process simply call <code><a href="#INITIATE-AUTHENTICATION">initiate-authentication</a></code>. If your addresses and api codes are correct, it should return an URL that the user has to visit in their browser. </p>
+        <code class="line">(<a href="#INITIATE-AUTHENTICATION">south:initiate-authentication</a>)</code>
+        <p>
+          By default this will use the SERVER method, which loads and starts a hunchentoot instance on <code><a href="#*SERVER-PORT*">*SERVER-PORT*</a></code>. After the remote authentication has been accepted it redirects to this local server. If you want to handle the server yourself, you should instead pass a callback URL as the <code>:method</code> to <code><a href="#INITIATE-AUTHENTICATION">initiate-authentication</a></code>. Depending on the service it might provide additional non-standard authentication methods, like twitter's PIN. The PIN method is already integrated into South, but anything beyond that you will have to add yourself. If you choose to use your own server or a different method, you will need to call <code><a href="#COMPLETE-AUTHENTICATION">complete-authentication</a></code> with the verifier and optionally the access-token.
+        </p>
+        <code class="line">(<a href="#COMPLETE-AUTHENTICATION">south:complete-authentication</a> verifier :token access-token)</code>
+        <p>
+          The SERVER method will automatically call <code><a href="#COMPLETE-AUTHENTICATION">complete-authentication</a></code> once it receives the request and shuts itself down. If <code><a href="#COMPLETE-AUTHENTICATION">complete-authentication</a></code> returns successfully you should now be all set to perform oAuth requests. To request with oAuth signatures, you can use the <code><a href="#SIGNED-REQUEST">signed-request</a></code> function.
+        </p>
+        <code class="line">(<a href="#SIGNED-REQUEST">south:signed-request</a> &quot;https://api.twitter.com/1.1/account/verify_credentials.json&quot;)</code>
+        <p>
+          Depending on how your service requires it, posting form data may require special treatment. South provides a <code><a href="#SIGNED-DATA-REQUEST">signed-data-request</a></code> function that is geared towards how twitter requires it, but it may also work for other services.
+        </p>
+        <p>
+          If you need to handle multiple oAuth accounts at the same time you may want to use the <code><a href="#WITH-OAUTH-ENVIRONMENT">with-oauth-environment</a></code> macro to establish dynamic bindings around the internal special variables. The macro accepts parameters for all the environment variables so you may directly set them without needing to call <code><a href="#PREPARE">prepare</a></code>.
+        </p>
+      </article>
+      <article>
+        <header><h2>Other Guff</h2></header>
+        <p>
+          South is licensed under the <a href="http://opensource.org/licenses/Artistic-2.0">Artistic License 2.0</a> and ©2014 TymoonNET/NexT, <a href="http://shinmera.com">Nicolas Hafner</a>.<br/>
+          This library can be obtained via git on <a href="https://github.com/Shinmera/south.git">https://github.com/Shinmera/south.git</a>. For questions, patches or suggestions, please contact me via <a href="mailto:shinmera@tymoon.eu">email</a> or write a <a href="https://github.com/Shinmera/south/issues/new">github issue</a>.
+        </p>
+      </article>
+      <article>
+        <header><h2><a name="SOUTH" href="#SOUTH">South Package Index</a></h2></header>
+        <ul id="docs" class="docs">
+          <li id="template">
+            <article>
+              <a name="Foo" class="anchor"></a>
+              <header>
+                <span class="functype">test</span>
+                <code>
+                  <h3><a href="#Foo" class="funcname">Foo</a></h3>
+                  <span class="funcargs">()</span>
+                </code>
+              </header>
+              <pre class="funcdesc">
+                Foobar
+              </pre>
+            </article>
+          </li>
+        </ul>
+      </article>
+    </div>
+  </body>
+</html>
