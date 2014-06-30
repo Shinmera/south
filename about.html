@@ -272,11 +272,12 @@ Sets the *OAUTH-TOKEN* and *OAUTH-TOKEN-SECRET* to their respective values.</pre
                 <span class="functype">EXTERNAL FUNCTION</span>
                 <code>
                   <h3><a href="#INITIATE-AUTHENTICATION" class="funcname">INITIATE-AUTHENTICATION</a></h3>
-                  <span class="funcargs">(&amp;KEY (METHOD PIN) (API-KEY *OAUTH-API-KEY*) (API-SECRET *OAUTH-API-SECRET*))</span>
+                  <span class="funcargs">(&amp;KEY (METHOD SERVER) (API-KEY *OAUTH-API-KEY*) (API-SECRET *OAUTH-API-SECRET*))</span>
                 </code>
               </header>
               <pre class="funcdesc">Starts the authentication process and returns an URL that the user has to visit.
 METHOD can be one of :PIN :SERVER or a string designating a callback URL.
+Note that the :PIN method is NOT STANDARD and thus might not be available for your service.
 See OAUTH/AUTHORIZE, INITIATE-SERVER-AUTHENTICATION and OAUTH/AUTHENTICATE respectively.</pre>
             </article>
           </li><li id="template">
@@ -430,12 +431,25 @@ According to spec https://dev.twitter.com/docs/auth/pin-based-authorization</pre
                 <span class="functype">EXTERNAL FUNCTION</span>
                 <code>
                   <h3><a href="#PREPARE" class="funcname">PREPARE</a></h3>
-                  <span class="funcargs">(&amp;KEY REQUEST-TOKEN AUTHORIZE (AUTHENTICATE AUTHORIZE) ACCESS-TOKEN API-KEY
- API-SECRET)</span>
+                  <span class="funcargs">(&amp;KEY OAUTH/REQUEST-TOKEN OAUTH/AUTHORIZE (OAUTH/AUTHENTICATE OAUTH/AUTHORIZE)
+ OAUTH/ACCESS-TOKEN API-KEY API-SECRET)</span>
                 </code>
               </header>
               <pre class="funcdesc">Cosmetic function to set the oauth request URLs and api-key and -secret.
 This only sets the internal value of the parameter if it is non-NIL.</pre>
+            </article>
+          </li><li id="template">
+            <article>
+              <a name="RESET" class="anchor"/>
+              <header>
+                <span class="functype">EXTERNAL FUNCTION</span>
+                <code>
+                  <h3><a href="#RESET" class="funcname">RESET</a></h3>
+                  <span class="funcargs">()</span>
+                </code>
+              </header>
+              <pre class="funcdesc">Resets the internal API-KEY, API-SECRET, ACCESS-TOKEN and ACCESS-SECRET to NIL.
+This does not change the oauth request URLs.</pre>
             </article>
           </li><li id="template">
             <article>
