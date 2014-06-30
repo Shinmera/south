@@ -116,24 +116,6 @@ Simply generates a signature and appends the proper parameter."
   (format NIL "OAuth ~{~/south::authorization-format-parameter/~^, ~}"
           (sort parameters #'string< :key #'car)))
 
-(defun parse-body (body headers)
-  (let ((type (cdr (assoc :content-type headers))))
-    (cond ((or (string= type "application/json;charset=utf-8")
-               (string= type "application/json; charset=utf-8")
-               (string= type "application/json"))
-           (yason:parse body :object-as :alist :object-key-fn #'to-keyword))
-          ((or (string= type "text/plain;charset=utf-8")
-               (string= type "text/plain; charset=utf-8")
-               (string= type "text/plain")
-               (string= type "text/html;charset=utf-8")
-               (string= type "text/html; charset=utf-8")
-               (string= type "text/html")
-               (string= type "application/x-www-form-urlencoded"))
-           body)
-          (T
-           (warn "Do not know how to handle content type: ~a" type)
-           body))))
-
 (defun create-authorization-header (method request-url oauth-parameters parameters)
   (assert (not (null *oauth-api-key*)) (*oauth-api-key*)
           'oauth-parameter-missing :parameter '*oauth-api-key*)
@@ -162,7 +144,7 @@ Simply generates a signature and appends the proper parameter."
                                              :external-format-out *external-format*
                                              :url-encoder #'url-encode
                                              drakma-params)))
-           (body (parse-body (nth 0 vals) (nth 2 vals))))
+           (body (nth 0 vals)))
       (setf (nth 0 vals) body)
       (if (= (nth 1 vals) 200)
           (values-list vals)

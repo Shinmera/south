@@ -20,7 +20,6 @@
                (:file "toolkit")
                (:file "oauth"))
   :depends-on (:drakma
-               :yason
                :uuid
                :ironclad
                :cl-ppcre))
