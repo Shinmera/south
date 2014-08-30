@@ -17,6 +17,7 @@
    #:*oauth-signature-method*
    #:*oauth-version*
    #:*server-port*
+   #:*authentication-callback*
    #:*oauth/request-token*
    #:*oauth/authenticate*
    #:*oauth/authorize*

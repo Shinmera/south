@@ -17,6 +17,9 @@
 (defvar *oauth/authorize* NIL)
 (defvar *oauth/access-token* NIL)
 (defvar *server-port* 8989)
+(defvar *authentication-callback* #'(lambda (&rest a) (declare (ignore a)))
+  "Function called when COMPLETE-AUTHENTICATION is called.
+Two arguments are passed, the ACCESS-TOKEN and the ACCESS-SECRET.")
 
 (defun reset ()
   "Resets the internal API-KEY, API-SECRET, ACCESS-TOKEN and ACCESS-SECRET to NIL.
@@ -303,4 +306,5 @@ Sets the *OAUTH-TOKEN* and *OAUTH-TOKEN-SECRET* to their respective values."
   (let ((data (oauth/access-token verifier)))
     (setf *oauth-access-token* (cdr (assoc :oauth-token data))
           *oauth-access-secret* (cdr (assoc :oauth-token-secret data)))
+    (funcall *authentication-callback* *oauth-access-token* *oauth-access-secret*)
     (values *oauth-access-token* *oauth-access-secret*)))
