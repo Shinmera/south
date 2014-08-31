@@ -34,13 +34,17 @@ responses into an alist."
   (let ((name (cl-ppcre:regex-replace-all "_" (string-upcase string) "-")))
     (or (find-symbol name "KEYWORD") (intern name "KEYWORD"))))
 
-(defun url-encode (string &optional (external-format *external-format*))
-  "Returns a URL-encoded version of the string STRING using the external format EXTERNAL-FORMAT.
+(defun url-encode (thing &optional (external-format *external-format*))
+  "Returns a URL-encoded version of the string STRING or OCTET-SEQUENCE using the external format EXTERNAL-FORMAT.
 
 According to spec https://dev.twitter.com/docs/auth/percent-encoding-parameters"
   ;; Adapted from DRAKMA.
   (with-output-to-string (out)
-    (loop for octet across (flexi-streams:string-to-octets (or string "") :external-format external-format)
+    (loop for octet across (etypecase thing
+                             ((or string null)
+                              (flexi-streams:string-to-octets (or thing "") :external-format external-format))
+                             ((array (unsigned-byte 8))
+                              thing))
           for char = (code-char octet)
           do (cond ((or (char<= #\0 char #\9)
                         (char<= #\a char #\z)
