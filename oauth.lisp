@@ -170,11 +170,12 @@ According to spec https://dev.twitter.com/docs/auth/authorizing-request"
 
 (defun prepare-data-parameters (parameters)
   (mapc #'(lambda (param)
-            (setf (cdr param)
-                  (list (etypecase (cdr param)
-                          (pathname (cdr param))
-                          ((array (unsigned-byte 8) (*)) (cdr param)))
-                        :content-type "application/octet-stream")))
+            (unless (listp (cdr param))
+              (setf (cdr param)
+                    (list (etypecase (cdr param)
+                            (pathname (cdr param))
+                            ((array (unsigned-byte 8) (*)) (cdr param)))
+                          :content-type "application/octet-stream"))))
         parameters))
 
 (defun signed-data-request (request-url &key data-parameters parameters oauth-parameters additional-headers (method :POST) drakma-params)
@@ -188,6 +189,18 @@ According to spec https://dev.twitter.com/docs/uploading-media"
            :additional-headers (append additional-headers
                                        (create-authorization-header method request-url oauth-parameters NIL))
            drakma-params)))
+
+(defun signed-data-parameters-request (request-url &key data-parameters parameters oauth-parameters additional-headers (method :POST) drakma-params)
+  "Issue a signed data request against the API.
+See SIGNED-REQUEST. The difference to SIGNED-DATA-REQUEST is that 
+the default PARAMETERS are used to calculate the authorization header,
+whereas the DATA-PARAMETERS are not. In SINGED-DATA-REQUEST, neither
+of the parameters are used for the header."  
+  (apply #'request-wrapper request-url
+         :method method :parameters (append parameters (prepare-data-parameters data-parameters)) :form-data T
+         :additional-headers (append additional-headers
+                                     (create-authorization-header method request-url oauth-parameters parameters))
+         drakma-params))
 
 (defun signed-stream-request (request-url &key parameters oauth-parameters additional-headers (method :POST) drakma-params)
   "Issue a signed data request against the API.
