@@ -10,7 +10,7 @@
 
 (defsystem south
   :name "South"
-  :version "0.2.0"
+  :version "0.2.3"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
