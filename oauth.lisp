@@ -138,11 +138,13 @@ Simply generates a signature and appends the proper parameter."
     `(("Authorization" . ,(create-authorization-header-value oauth-parameters)))))
 
 (defun request-wrapper (uri &rest drakma-params)
-  (let ((vals (multiple-value-list (apply #'drakma:http-request uri
-                                          :external-format-in *external-format*
-                                          :external-format-out *external-format*
-                                          :url-encoder #'url-encode
-                                          drakma-params))))
+  (let* ((drakma:*text-content-types* (cons '("application" . "x-www-form-urlencoded")
+                                            drakma:*text-content-types*))
+         (vals (multiple-value-list (apply #'drakma:http-request uri
+                                           :external-format-in *external-format*
+                                           :external-format-out *external-format*
+                                           :url-encoder #'url-encode
+                                           drakma-params))))
     (if (< (nth 1 vals) 400)
         (values-list vals)
         (error 'oauth-request-error
