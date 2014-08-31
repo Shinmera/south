@@ -42,6 +42,7 @@
    #:with-oauth-environment
    #:signed-request
    #:signed-data-request
+   #:signed-data-parameters-request
    #:signed-stream-request
    #:pin-request-token
    #:complete-authentication
@@ -53,4 +54,6 @@
    #:initiate-server-authentication)
   ;; toolkit.lisp
   (:export
-   #:*external-format*))
+   #:*external-format*
+   #:url-encode
+   #:generate-nonce))
