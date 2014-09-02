@@ -12,10 +12,10 @@ as well as the `api-key` and `api-secret` of your oAuth application that you wan
 
 ```
 (south:prepare
-  :oauth/request-token &quot;https://api.twitter.com/oauth/request_token&quot;
-  :oauth/authenticate &quot;https://api.twitter.com/oauth/authenticate&quot;
-  :oauth/authorize &quot;https://api.twitter.com/oauth/authorize&quot;
-  :oauth/access-token &quot;https://api.twitter.com/oauth/access_token&quot;
+  :oauth/request-token "https://api.twitter.com/oauth/request_token"
+  :oauth/authenticate "https://api.twitter.com/oauth/authenticate"
+  :oauth/authorize "https://api.twitter.com/oauth/authorize"
+  :oauth/access-token "https://api.twitter.com/oauth/access_token"
   :api-key key
   :api-secret secret)
 ```
@@ -35,7 +35,7 @@ By default this will use the SERVER method, which loads and starts a hunchentoot
 The SERVER method will automatically call `complete-authentication` once it receives the request and shuts itself down. If `complete-authentication` returns successfully you should now be all set to perform oAuth requests. To request with oAuth signatures, you can use the `signed-request` function.
 
 ```
-(south:signed-request &quot;https://api.twitter.com/1.1/account/verify_credentials.json&quot;)
+(south:signed-request "https://api.twitter.com/1.1/account/verify_credentials.json")
 ```
 
 Depending on how your service requires it, posting form data may require special treatment. South provides a `signed-data-request` function that is geared towards how twitter requires it, but it may also work for other services.
