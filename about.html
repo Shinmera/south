@@ -1,569 +1,675 @@
-<!DOCTYPE html><!--
-  This file is a part of South
-  (c) 2014 TymoonNET/NexT http://tymoon.eu (shinmera@tymoon.eu)
-  Author: Nicolas Hafner <shinmera@tymoon.eu>
-  !--><html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8"/>
-    <title>South - About</title>
+    <title>SOUTH</title>
     <style type="text/css">
+      code a{text-decoration:none;}
+      h1{display:inline-block;font-size: 28pt;margin-bottom:0;}
       code{font-family: Consolas, Inconsolata, monospace;}
-      code.line{margin-left: 20px;}
-      code a{text-decoration: none; color: blue;}
-      h3{display: inline-block;margin:0;padding:0;}
-      .docs{list-style: none;}
-      .docs li{margin-bottom: 20px;}
-      .docs pre{margin: 0 0 0 10px; white-space: pre-wrap;}
+      h4{display: inline-block;margin:0;padding:0;}
+      #symbol-index ul{list-style: none;}
+      .package li{margin-bottom: 20px;}
+      .package pre{margin: 0 0 0 10px; white-space: pre-wrap;}
+      .package .nicknames{font-size: 12pt; font-weight: normal;}
+      table{margin: 20px;}
+      td{padding-bottom: 10px;}
     </style>
   </head>
   <body>
     <header>
-      <img src="south-logo.png" alt="South"/><br/>
-      Simple OaUTH
-      <h1>v0.2.0</h1>
+      <h1><img src="south-logo.png" alt="south"/></h1>
+      <span>0.2.4</span>
+      <p>Simple OaUTH library for oAuth1.0</p>
     </header>
     <div id="content">
       <article>
-        <header><h2>What is South?</h2></header>
-        <p>South is a library aiming to provide a simple layer for interaction with <a href="http://oauth.net/core/1.0a/">oAuth 1.0a</a> services.</p>
-        <p>This library was split off from the <a href="https://shinmera.github.com/chirp">Chirp</a> twitter library to provide a more generalised access layer.</p>
+        <c:documentate>
+          <span><h2>How To</h2>
+
+<p>Load South through Quicklisp or ASDF:</p>
+
+<pre><code>(ql:quickload :south)</code></pre>
+
+<p>First you need to tell South about the service you want to interact with. For this you will need at least the following three URLs
+<code><a href="#SOUTH:OAUTH/REQUEST-TOKEN">oauth/request-token</a></code>, <code><a href="#SOUTH:OAUTH/AUTHORIZE">oauth/authorize</a></code>, <code><a href="#SOUTH:OAUTH/ACCESS-TOKEN">oauth/access-token</a></code>
+as well as the <code>api-key</code> and <code>api-secret</code> of your oAuth application that you want to use to connect. To set up South you can either set the according special variables directly or use the <code><a href="#SOUTH:PREPARE">prepare</a></code> function:</p>
+
+<pre><code>(<a href="#SOUTH:PREPARE">south:prepare</a>
+  :oauth/request-token &quot;https://api.twitter.com/oauth/request_token&quot;
+  :oauth/authenticate &quot;https://api.twitter.com/oauth/authenticate&quot;
+  :oauth/authorize &quot;https://api.twitter.com/oauth/authorize&quot;
+  :oauth/access-token &quot;https://api.twitter.com/oauth/access_token&quot;
+  :api-key key
+  :api-secret secret)</code></pre>
+
+<p>Twitter requires an additional <code>authenticate</code> URL, which is otherwise set to the same as the <code>authorize</code> address. To start the authentication process simply call <code><a href="#SOUTH:INITIATE-AUTHENTICATION">initiate-authentication</a></code>. If your addresses and api codes are correct, it should return an URL that the user has to visit in their browser.</p>
+
+<pre><code>(<a href="#SOUTH:INITIATE-AUTHENTICATION">south:initiate-authentication</a>)</code></pre>
+
+<p>By default this will use the SERVER method, which loads and starts a hunchentoot instance on <code><a href="#SOUTH:*SERVER-PORT*">*SERVER-PORT*</a></code>. After the remote authentication has been accepted it redirects to this local server. If you want to handle the server yourself, you should instead pass a callback URL as the <code>:method</code> to <code><a href="#SOUTH:INITIATE-AUTHENTICATION">initiate-authentication</a></code>. Depending on the service it might provide additional non-standard authentication methods, like twitter's PIN. The PIN method is already integrated into South, but anything beyond that you will have to add yourself. If you choose to use your own server or a different method, you will need to call <code><a href="#SOUTH:COMPLETE-AUTHENTICATION">complete-authentication</a></code> with the verifier and optionally the access-token.</p>
+
+<pre><code>(<a href="#SOUTH:COMPLETE-AUTHENTICATION">south:complete-authentication</a> verifier :token access-token)</code></pre>
+
+<p>The SERVER method will automatically call <code><a href="#SOUTH:COMPLETE-AUTHENTICATION">complete-authentication</a></code> once it receives the request and shuts itself down. If <code><a href="#SOUTH:COMPLETE-AUTHENTICATION">complete-authentication</a></code> returns successfully you should now be all set to perform oAuth requests. To request with oAuth signatures, you can use the <code><a href="#SOUTH:SIGNED-REQUEST">signed-request</a></code> function.</p>
+
+<pre><code>(<a href="#SOUTH:SIGNED-REQUEST">south:signed-request</a> &quot;https://api.twitter.com/1.1/account/verify_credentials.json&quot;)</code></pre>
+
+<p>Depending on how your service requires it, posting form data may require special treatment. South provides a <code><a href="#SOUTH:SIGNED-DATA-REQUEST">signed-data-request</a></code> function that is geared towards how twitter requires it, but it may also work for other services.</p>
+
+<p>If you need to handle multiple oAuth accounts at the same time you may want to use the <code><a href="#SOUTH:WITH-OAUTH-ENVIRONMENT">with-oauth-environment</a></code> macro to establish dynamic bindings around the internal special variables. The macro accepts parameters for all the environment variables so you may directly set them without needing to call <code><a href="#SOUTH:PREPARE">prepare</a></code>.</p>
+
+<h2>Applications</h2>
+
+<p>If your application uses South, please let me know so I can list it here!</p>
+
+<ul>
+<li><a href="https://shinmera.github.io/humbler/">Humbler</a>, a Tumblr API interface library.</li>
+</ul>
+</span>
+        </c:documentate>
       </article>
       <article>
-        <header><h2>How To</h2></header>
-        <p>
-          Load South through Quicklisp or ASDF:
-        </p>
-        <code class="line">(ql:quickload :south)</code>
-        <p>
-          First you need to tell South about the service you want to interact with. For this you will need at least the following three URLs: <br/>
-          <code>oauth/request-token</code>     <code>oauth/authorize</code>     <code>oauth/access-token</code><br/>
-          As well as the <code>api-key</code> and <code>api-secret</code> of your oAuth application that you want to use to connect. To set up South you can either set the according special variables directly or use the <code><a href="#PREPARE">prepare</a></code> function:
-        </p>
-        <pre><code class="line">(<a href="#PREPARE">south:prepare</a>
-    :oauth/request-token &quot;https://api.twitter.com/oauth/request_token&quot;
-    :oauth/authenticate &quot;https://api.twitter.com/oauth/authenticate&quot;
-    :oauth/authorize &quot;https://api.twitter.com/oauth/authorize&quot;
-    :oauth/access-token &quot;https://api.twitter.com/oauth/access_token&quot;
-    :api-key key
-    :api-secret secret)</code></pre>
-        <p>Twitter requires an additional <code>authenticate</code> URL, which is otherwise set to the same as the <code>authorize</code> address. To start the authentication process simply call <code><a href="#INITIATE-AUTHENTICATION">initiate-authentication</a></code>. If your addresses and api codes are correct, it should return an URL that the user has to visit in their browser. </p>
-        <code class="line">(<a href="#INITIATE-AUTHENTICATION">south:initiate-authentication</a>)</code>
-        <p>
-          By default this will use the SERVER method, which loads and starts a hunchentoot instance on <code><a href="#*SERVER-PORT*">*SERVER-PORT*</a></code>. After the remote authentication has been accepted it redirects to this local server. If you want to handle the server yourself, you should instead pass a callback URL as the <code>:method</code> to <code><a href="#INITIATE-AUTHENTICATION">initiate-authentication</a></code>. Depending on the service it might provide additional non-standard authentication methods, like twitter's PIN. The PIN method is already integrated into South, but anything beyond that you will have to add yourself. If you choose to use your own server or a different method, you will need to call <code><a href="#COMPLETE-AUTHENTICATION">complete-authentication</a></code> with the verifier and optionally the access-token.
-        </p>
-        <code class="line">(<a href="#COMPLETE-AUTHENTICATION">south:complete-authentication</a> verifier :token access-token)</code>
-        <p>
-          The SERVER method will automatically call <code><a href="#COMPLETE-AUTHENTICATION">complete-authentication</a></code> once it receives the request and shuts itself down. If <code><a href="#COMPLETE-AUTHENTICATION">complete-authentication</a></code> returns successfully you should now be all set to perform oAuth requests. To request with oAuth signatures, you can use the <code><a href="#SIGNED-REQUEST">signed-request</a></code> function.
-        </p>
-        <code class="line">(<a href="#SIGNED-REQUEST">south:signed-request</a> &quot;https://api.twitter.com/1.1/account/verify_credentials.json&quot;)</code>
-        <p>
-          Depending on how your service requires it, posting form data may require special treatment. South provides a <code><a href="#SIGNED-DATA-REQUEST">signed-data-request</a></code> function that is geared towards how twitter requires it, but it may also work for other services.
-        </p>
-        <p>
-          If you need to handle multiple oAuth accounts at the same time you may want to use the <code><a href="#WITH-OAUTH-ENVIRONMENT">with-oauth-environment</a></code> macro to establish dynamic bindings around the internal special variables. The macro accepts parameters for all the environment variables so you may directly set them without needing to call <code><a href="#PREPARE">prepare</a></code>.
-        </p>
+        <h2>Copyright</h2>
+        <span>south</span> is licensed under the <span><a href="https://tldrlegal.com/search?q=Artistic">Artistic</a></span> license and ©<span>2014</span> <span>Nicolas Hafner &lt;shinmera@tymoon.eu&gt;</span>. This library can be obtained on <a href="https://github.com/Shinmera/south">https://github.com/Shinmera/south</a>.
       </article>
-      <article>
-        <header><h2>Other Guff</h2></header>
-        <p>
-          South is licensed under the <a href="http://opensource.org/licenses/Artistic-2.0">Artistic License 2.0</a> and ©2014 TymoonNET/NexT, <a href="http://shinmera.com">Nicolas Hafner</a>.<br/>
-          This library can be obtained via git on <a href="https://github.com/Shinmera/south.git">https://github.com/Shinmera/south.git</a>. For questions, patches or suggestions, please contact me via <a href="mailto:shinmera@tymoon.eu">email</a> or write a <a href="https://github.com/Shinmera/south/issues/new">github issue</a>.
-        </p>
-      </article>
-      <article>
-        <header><h2><a name="SOUTH" href="#SOUTH">South Package Index</a></h2></header>
-        <ul id="docs" class="docs"><li id="template">
-            <article>
-              <a name="*EXTERNAL-FORMAT*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*EXTERNAL-FORMAT*" class="funcname">*EXTERNAL-FORMAT*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc">The external format used for encoding/decoding.</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH-ACCESS-SECRET*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH-ACCESS-SECRET*" class="funcname">*OAUTH-ACCESS-SECRET*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH-ACCESS-TOKEN*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH-ACCESS-TOKEN*" class="funcname">*OAUTH-ACCESS-TOKEN*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH-API-KEY*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH-API-KEY*" class="funcname">*OAUTH-API-KEY*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH-API-SECRET*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH-API-SECRET*" class="funcname">*OAUTH-API-SECRET*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH-SIGNATURE-METHOD*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH-SIGNATURE-METHOD*" class="funcname">*OAUTH-SIGNATURE-METHOD*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH-VERSION*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH-VERSION*" class="funcname">*OAUTH-VERSION*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH/ACCESS-TOKEN*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH/ACCESS-TOKEN*" class="funcname">*OAUTH/ACCESS-TOKEN*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH/AUTHENTICATE*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH/AUTHENTICATE*" class="funcname">*OAUTH/AUTHENTICATE*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH/AUTHORIZE*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH/AUTHORIZE*" class="funcname">*OAUTH/AUTHORIZE*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*OAUTH/REQUEST-TOKEN*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*OAUTH/REQUEST-TOKEN*" class="funcname">*OAUTH/REQUEST-TOKEN*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="*SERVER-PORT*" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL SPECIAL</span>
-                <code>
-                  <h3><a href="#*SERVER-PORT*" class="funcname">*SERVER-PORT*</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="COMPLETE-AUTHENTICATION" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#COMPLETE-AUTHENTICATION" class="funcname">COMPLETE-AUTHENTICATION</a></h3>
-                  <span class="funcargs">(VERIFIER &amp;OPTIONAL (TOKEN *OAUTH-ACCESS-TOKEN*))</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Finishes the authentication procedure by retrieving the access token.
+      <article id="symbol-index">
+        <h2>Package Index</h2>
+        <ul><li class="package">
+            <h3>
+              <a name="SOUTH" href="#SOUTH">SOUTH</a>
+              <span class="nicknames">(ORG.TYMOONNEXT.SOUTH)</span>
+            </h3>
+            <ul><li>
+                <a name="SOUTH:OAUTH-ERROR"/>
+                <article>
+                  <header>
+                    <span>CLASS</span>
+                    <code>
+                      <h4><a href="#SOUTH:OAUTH-ERROR">OAUTH-ERROR</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:OAUTH-PARAMETER-MISSING"/>
+                <article>
+                  <header>
+                    <span>CLASS</span>
+                    <code>
+                      <h4><a href="#SOUTH:OAUTH-PARAMETER-MISSING">OAUTH-PARAMETER-MISSING</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:OAUTH-REQUEST-ERROR"/>
+                <article>
+                  <header>
+                    <span>CLASS</span>
+                    <code>
+                      <h4><a href="#SOUTH:OAUTH-REQUEST-ERROR">OAUTH-REQUEST-ERROR</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:COMPLETE-AUTHENTICATION"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:COMPLETE-AUTHENTICATION">COMPLETE-AUTHENTICATION</a></h4>
+                      <span/>
+                      <span>(VERIFIER &amp;OPTIONAL (TOKEN *OAUTH-ACCESS-TOKEN*))</span>
+                    </code>
+                  </header>
+                  <pre>Finishes the authentication procedure by retrieving the access token.
 Sets the *OAUTH-TOKEN* and *OAUTH-TOKEN-SECRET* to their respective values.</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="HTTP-BODY" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL GENERIC</span>
-                <code>
-                  <h3><a href="#HTTP-BODY" class="funcname">HTTP-BODY</a></h3>
-                  <span class="funcargs">(CONDITION)</span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="HTTP-HEADERS" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL GENERIC</span>
-                <code>
-                  <h3><a href="#HTTP-HEADERS" class="funcname">HTTP-HEADERS</a></h3>
-                  <span class="funcargs">(CONDITION)</span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="HTTP-STATUS" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL GENERIC</span>
-                <code>
-                  <h3><a href="#HTTP-STATUS" class="funcname">HTTP-STATUS</a></h3>
-                  <span class="funcargs">(CONDITION)</span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="INITIATE-AUTHENTICATION" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#INITIATE-AUTHENTICATION" class="funcname">INITIATE-AUTHENTICATION</a></h3>
-                  <span class="funcargs">(&amp;KEY (METHOD SERVER) (API-KEY *OAUTH-API-KEY*) (API-SECRET *OAUTH-API-SECRET*))</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Starts the authentication process and returns an URL that the user has to visit.
+                </article>
+              </li><li>
+                <a name="SOUTH:GENERATE-NONCE"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:GENERATE-NONCE">GENERATE-NONCE</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Generate a NONCE to use for requests. Currently this simply uses a v4-UUID.</pre>
+                </article>
+              </li><li>
+                <a name="SOUTH:INITIATE-AUTHENTICATION"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:INITIATE-AUTHENTICATION">INITIATE-AUTHENTICATION</a></h4>
+                      <span/>
+                      <span>(&amp;KEY (METHOD SERVER) (API-KEY *OAUTH-API-KEY*) (API-SECRET *OAUTH-API-SECRET*))</span>
+                    </code>
+                  </header>
+                  <pre>Starts the authentication process and returns an URL that the user has to visit.
 METHOD can be one of :PIN :SERVER or a string designating a callback URL.
 Note that the :PIN method is NOT STANDARD and thus might not be available for your service.
 See OAUTH/AUTHORIZE, INITIATE-SERVER-AUTHENTICATION and OAUTH/AUTHENTICATE respectively.</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="INITIATE-SERVER-AUTHENTICATION" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#INITIATE-SERVER-AUTHENTICATION" class="funcname">INITIATE-SERVER-AUTHENTICATION</a></h3>
-                  <span class="funcargs">()</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Initiate the authentication through the server mechanism.
+                </article>
+              </li><li>
+                <a name="SOUTH:INITIATE-SERVER-AUTHENTICATION"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:INITIATE-SERVER-AUTHENTICATION">INITIATE-SERVER-AUTHENTICATION</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Initiate the authentication through the server mechanism.
 This is the same as the redirect mechanism, except it starts up
 a Hunchentoot server automatically and handles the callback for
 you. The server will be started on *SERVER-PORT* and will be shut
 down automatically after a single request.</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="OAUTH-ERROR" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL CLASS</span>
-                <code>
-                  <h3><a href="#OAUTH-ERROR" class="funcname">OAUTH-ERROR</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="OAUTH-PARAMETER-MISSING" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL CLASS</span>
-                <code>
-                  <h3><a href="#OAUTH-PARAMETER-MISSING" class="funcname">OAUTH-PARAMETER-MISSING</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="OAUTH-REQUEST-ERROR" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL CLASS</span>
-                <code>
-                  <h3><a href="#OAUTH-REQUEST-ERROR" class="funcname">OAUTH-REQUEST-ERROR</a></h3>
-                  <span class="funcargs"></span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="OAUTH/ACCESS-TOKEN" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#OAUTH/ACCESS-TOKEN" class="funcname">OAUTH/ACCESS-TOKEN</a></h3>
-                  <span class="funcargs">(VERIFIER)</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Turn the tokens received through the authentication into an access token.
+                </article>
+              </li><li>
+                <a name="SOUTH:OAUTH/ACCESS-TOKEN"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:OAUTH/ACCESS-TOKEN">OAUTH/ACCESS-TOKEN</a></h4>
+                      <span/>
+                      <span>(VERIFIER)</span>
+                    </code>
+                  </header>
+                  <pre>Turn the tokens received through the authentication into an access token.
 
 According to spec https://dev.twitter.com/docs/auth/implementing-sign-twitter</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="OAUTH/AUTHENTICATE" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#OAUTH/AUTHENTICATE" class="funcname">OAUTH/AUTHENTICATE</a></h3>
-                  <span class="funcargs">(CALLBACK-URL)</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Initiate the authentication through the redirect mechanism.
+                </article>
+              </li><li>
+                <a name="SOUTH:OAUTH/AUTHENTICATE"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:OAUTH/AUTHENTICATE">OAUTH/AUTHENTICATE</a></h4>
+                      <span/>
+                      <span>(CALLBACK-URL)</span>
+                    </code>
+                  </header>
+                  <pre>Initiate the authentication through the redirect mechanism.
 Returns an URL that the user has to open in the browser.
 Upon successful authentication, the page should redirect back
 to the specified callback url. This callback endpoint should then
 pass the proper parameters to COMPLETE-AUTHENTICATION.
 
 According to spec https://dev.twitter.com/docs/auth/implementing-sign-twitter</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="OAUTH/AUTHORIZE" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#OAUTH/AUTHORIZE" class="funcname">OAUTH/AUTHORIZE</a></h3>
-                  <span class="funcargs">()</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Initiate the authentication through the PIN mechanism.
+                </article>
+              </li><li>
+                <a name="SOUTH:OAUTH/AUTHORIZE"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:OAUTH/AUTHORIZE">OAUTH/AUTHORIZE</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Initiate the authentication through the PIN mechanism.
 Returns an URL that the user has to open in the browser.
 This page should, upon successful authentication, return a PIN
 that has to be initialized by passing it to COMPLETE-AUTHENTICATION.
 
 According to spec https://dev.twitter.com/docs/auth/pin-based-authorization</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="OAUTH/REQUEST-TOKEN" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#OAUTH/REQUEST-TOKEN" class="funcname">OAUTH/REQUEST-TOKEN</a></h3>
-                  <span class="funcargs">(CALLBACK)</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Query for a request token using the specified callback.
+                </article>
+              </li><li>
+                <a name="SOUTH:OAUTH/REQUEST-TOKEN"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:OAUTH/REQUEST-TOKEN">OAUTH/REQUEST-TOKEN</a></h4>
+                      <span/>
+                      <span>(CALLBACK)</span>
+                    </code>
+                  </header>
+                  <pre>Query for a request token using the specified callback.
 Returns an ALIST containing :OAUTH-TOKEN, :OAUTH-TOKEN-SECRET and 
 :OAUTH-CALLBACK-CONFIRMED, the first two being strings and the last a boolean.
 
 According to spec https://dev.twitter.com/docs/auth/implementing-sign-twitter</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="PARAMETER" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL GENERIC</span>
-                <code>
-                  <h3><a href="#PARAMETER" class="funcname">PARAMETER</a></h3>
-                  <span class="funcargs">(CONDITION)</span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="PIN-REQUEST-TOKEN" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#PIN-REQUEST-TOKEN" class="funcname">PIN-REQUEST-TOKEN</a></h3>
-                  <span class="funcargs">()</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Query for a PIN based request token.
+                </article>
+              </li><li>
+                <a name="SOUTH:PIN-REQUEST-TOKEN"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:PIN-REQUEST-TOKEN">PIN-REQUEST-TOKEN</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Query for a PIN based request token.
 Seee CALLBACK-REQUEST-TOKEN.
 
 According to spec https://dev.twitter.com/docs/auth/pin-based-authorization</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="PREPARE" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#PREPARE" class="funcname">PREPARE</a></h3>
-                  <span class="funcargs">(&amp;KEY OAUTH/REQUEST-TOKEN OAUTH/AUTHORIZE (OAUTH/AUTHENTICATE OAUTH/AUTHORIZE)
+                </article>
+              </li><li>
+                <a name="SOUTH:PREPARE"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:PREPARE">PREPARE</a></h4>
+                      <span/>
+                      <span>(&amp;KEY OAUTH/REQUEST-TOKEN OAUTH/AUTHORIZE (OAUTH/AUTHENTICATE OAUTH/AUTHORIZE)
  OAUTH/ACCESS-TOKEN API-KEY API-SECRET)</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Cosmetic function to set the oauth request URLs and api-key and -secret.
+                    </code>
+                  </header>
+                  <pre>Cosmetic function to set the oauth request URLs and api-key and -secret.
 This only sets the internal value of the parameter if it is non-NIL.</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="RESET" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#RESET" class="funcname">RESET</a></h3>
-                  <span class="funcargs">()</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Resets the internal API-KEY, API-SECRET, ACCESS-TOKEN and ACCESS-SECRET to NIL.
+                </article>
+              </li><li>
+                <a name="SOUTH:RESET"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:RESET">RESET</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Resets the internal API-KEY, API-SECRET, ACCESS-TOKEN and ACCESS-SECRET to NIL.
 This does not change the oauth request URLs.</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="SIGNED-DATA-REQUEST" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#SIGNED-DATA-REQUEST" class="funcname">SIGNED-DATA-REQUEST</a></h3>
-                  <span class="funcargs">(REQUEST-URL &amp;KEY DATA-PARAMETERS PARAMETERS OAUTH-PARAMETERS
+                </article>
+              </li><li>
+                <a name="SOUTH:SIGNED-DATA-PARAMETERS-REQUEST"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:SIGNED-DATA-PARAMETERS-REQUEST">SIGNED-DATA-PARAMETERS-REQUEST</a></h4>
+                      <span/>
+                      <span>(REQUEST-URL &amp;KEY DATA-PARAMETERS PARAMETERS OAUTH-PARAMETERS
  ADDITIONAL-HEADERS (METHOD POST) DRAKMA-PARAMS)</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Issue a signed data request against the API.
+                    </code>
+                  </header>
+                  <pre>Issue a signed data request against the API.
+See SIGNED-REQUEST. The difference to SIGNED-DATA-REQUEST is that 
+the default PARAMETERS are used to calculate the authorization header,
+whereas the DATA-PARAMETERS are not. In SINGED-DATA-REQUEST, neither
+of the parameters are used for the header.</pre>
+                </article>
+              </li><li>
+                <a name="SOUTH:SIGNED-DATA-REQUEST"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:SIGNED-DATA-REQUEST">SIGNED-DATA-REQUEST</a></h4>
+                      <span/>
+                      <span>(REQUEST-URL &amp;KEY DATA-PARAMETERS PARAMETERS OAUTH-PARAMETERS
+ ADDITIONAL-HEADERS (METHOD POST) DRAKMA-PARAMS)</span>
+                    </code>
+                  </header>
+                  <pre>Issue a signed data request against the API.
 See SIGNED-REQUEST.
 
 According to spec https://dev.twitter.com/docs/uploading-media</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="SIGNED-REQUEST" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#SIGNED-REQUEST" class="funcname">SIGNED-REQUEST</a></h3>
-                  <span class="funcargs">(REQUEST-URL &amp;KEY PARAMETERS OAUTH-PARAMETERS ADDITIONAL-HEADERS (METHOD POST)
+                </article>
+              </li><li>
+                <a name="SOUTH:SIGNED-REQUEST"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:SIGNED-REQUEST">SIGNED-REQUEST</a></h4>
+                      <span/>
+                      <span>(REQUEST-URL &amp;KEY PARAMETERS OAUTH-PARAMETERS ADDITIONAL-HEADERS (METHOD POST)
  DRAKMA-PARAMS)</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Issue a signed request against the API.
+                    </code>
+                  </header>
+                  <pre>Issue a signed request against the API.
 This requires the *oauth-api-key*, *oauth-signature-method*,
 *oauth-version* and at least *oauth-api-secret* to be set.
 See CREATE-SIGNATURE.
 For return values see DRAKMA:HTTP-REQUEST
 
 According to spec https://dev.twitter.com/docs/auth/authorizing-request</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="SIGNED-STREAM-REQUEST" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL FUNCTION</span>
-                <code>
-                  <h3><a href="#SIGNED-STREAM-REQUEST" class="funcname">SIGNED-STREAM-REQUEST</a></h3>
-                  <span class="funcargs">(REQUEST-URL &amp;KEY PARAMETERS OAUTH-PARAMETERS ADDITIONAL-HEADERS (METHOD POST)
+                </article>
+              </li><li>
+                <a name="SOUTH:SIGNED-STREAM-REQUEST"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:SIGNED-STREAM-REQUEST">SIGNED-STREAM-REQUEST</a></h4>
+                      <span/>
+                      <span>(REQUEST-URL &amp;KEY PARAMETERS OAUTH-PARAMETERS ADDITIONAL-HEADERS (METHOD POST)
  DRAKMA-PARAMS)</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Issue a signed data request against the API.
+                    </code>
+                  </header>
+                  <pre>Issue a signed data request against the API.
 See SIGNED-REQUEST. Returns values according to DRAKMA:HTTP-REQUEST with :WANT-STREAM T</pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="TARGET-HEADERS" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL GENERIC</span>
-                <code>
-                  <h3><a href="#TARGET-HEADERS" class="funcname">TARGET-HEADERS</a></h3>
-                  <span class="funcargs">(CONDITION)</span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="TARGET-METHOD" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL GENERIC</span>
-                <code>
-                  <h3><a href="#TARGET-METHOD" class="funcname">TARGET-METHOD</a></h3>
-                  <span class="funcargs">(CONDITION)</span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="TARGET-PARAMETERS" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL GENERIC</span>
-                <code>
-                  <h3><a href="#TARGET-PARAMETERS" class="funcname">TARGET-PARAMETERS</a></h3>
-                  <span class="funcargs">(CONDITION)</span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="TARGET-URL" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL GENERIC</span>
-                <code>
-                  <h3><a href="#TARGET-URL" class="funcname">TARGET-URL</a></h3>
-                  <span class="funcargs">(CONDITION)</span>
-                </code>
-              </header>
-              <pre class="funcdesc"></pre>
-            </article>
-          </li><li id="template">
-            <article>
-              <a name="WITH-OAUTH-ENVIRONMENT" class="anchor"/>
-              <header>
-                <span class="functype">EXTERNAL MACRO</span>
-                <code>
-                  <h3><a href="#WITH-OAUTH-ENVIRONMENT" class="funcname">WITH-OAUTH-ENVIRONMENT</a></h3>
-                  <span class="funcargs">((&amp;KEY OAUTH/REQUEST-TOKEN OAUTH/AUTHORIZE (OAUTH/AUTHENTICATE OAUTH/AUTHORIZE)
+                </article>
+              </li><li>
+                <a name="SOUTH:URL-ENCODE"/>
+                <article>
+                  <header>
+                    <span>FUNCTION</span>
+                    <code>
+                      <h4><a href="#SOUTH:URL-ENCODE">URL-ENCODE</a></h4>
+                      <span/>
+                      <span>(THING &amp;OPTIONAL (EXTERNAL-FORMAT *EXTERNAL-FORMAT*))</span>
+                    </code>
+                  </header>
+                  <pre>Returns a URL-encoded version of the string STRING or OCTET-SEQUENCE using the external format EXTERNAL-FORMAT.
+
+According to spec https://dev.twitter.com/docs/auth/percent-encoding-parameters</pre>
+                </article>
+              </li><li>
+                <a name="SOUTH:HTTP-BODY"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#SOUTH:HTTP-BODY">HTTP-BODY</a></h4>
+                      <span/>
+                      <span>(CONDITION)</span>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:HTTP-HEADERS"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#SOUTH:HTTP-HEADERS">HTTP-HEADERS</a></h4>
+                      <span/>
+                      <span>(CONDITION)</span>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:HTTP-STATUS"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#SOUTH:HTTP-STATUS">HTTP-STATUS</a></h4>
+                      <span/>
+                      <span>(CONDITION)</span>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:PARAMETER"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#SOUTH:PARAMETER">PARAMETER</a></h4>
+                      <span/>
+                      <span>(CONDITION)</span>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:TARGET-HEADERS"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#SOUTH:TARGET-HEADERS">TARGET-HEADERS</a></h4>
+                      <span/>
+                      <span>(CONDITION)</span>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:TARGET-METHOD"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#SOUTH:TARGET-METHOD">TARGET-METHOD</a></h4>
+                      <span/>
+                      <span>(CONDITION)</span>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:TARGET-PARAMETERS"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#SOUTH:TARGET-PARAMETERS">TARGET-PARAMETERS</a></h4>
+                      <span/>
+                      <span>(CONDITION)</span>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:TARGET-URL"/>
+                <article>
+                  <header>
+                    <span>GENERIC</span>
+                    <code>
+                      <h4><a href="#SOUTH:TARGET-URL">TARGET-URL</a></h4>
+                      <span/>
+                      <span>(CONDITION)</span>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:WITH-OAUTH-ENVIRONMENT"/>
+                <article>
+                  <header>
+                    <span>MACRO</span>
+                    <code>
+                      <h4><a href="#SOUTH:WITH-OAUTH-ENVIRONMENT">WITH-OAUTH-ENVIRONMENT</a></h4>
+                      <span/>
+                      <span>((&amp;KEY OAUTH/REQUEST-TOKEN OAUTH/AUTHORIZE (OAUTH/AUTHENTICATE OAUTH/AUTHORIZE)
   OAUTH/ACCESS-TOKEN SIGNATURE-METHOD VERSION API-KEY API-SECRET ACCESS-TOKEN
   ACCESS-SECRET)
  &amp;BODY BODY)</span>
-                </code>
-              </header>
-              <pre class="funcdesc">Establishes an environment for all oauth related special variables.
+                    </code>
+                  </header>
+                  <pre>Establishes an environment for all oauth related special variables.
 Unless a non-NIL value is provided for a parameter it is bound to the current value of the according special variable.</pre>
-            </article>
+                </article>
+              </li><li>
+                <a name="SOUTH:*AUTHENTICATION-CALLBACK*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*AUTHENTICATION-CALLBACK*">*AUTHENTICATION-CALLBACK*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>Function called when COMPLETE-AUTHENTICATION is called.
+Two arguments are passed, the ACCESS-TOKEN and the ACCESS-SECRET.</pre>
+                </article>
+              </li><li>
+                <a name="SOUTH:*EXTERNAL-FORMAT*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*EXTERNAL-FORMAT*">*EXTERNAL-FORMAT*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre>The external format used for encoding/decoding.</pre>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH-ACCESS-SECRET*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH-ACCESS-SECRET*">*OAUTH-ACCESS-SECRET*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH-ACCESS-TOKEN*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH-ACCESS-TOKEN*">*OAUTH-ACCESS-TOKEN*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH-API-KEY*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH-API-KEY*">*OAUTH-API-KEY*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH-API-SECRET*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH-API-SECRET*">*OAUTH-API-SECRET*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH-SIGNATURE-METHOD*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH-SIGNATURE-METHOD*">*OAUTH-SIGNATURE-METHOD*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH-VERSION*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH-VERSION*">*OAUTH-VERSION*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH/ACCESS-TOKEN*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH/ACCESS-TOKEN*">*OAUTH/ACCESS-TOKEN*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH/AUTHENTICATE*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH/AUTHENTICATE*">*OAUTH/AUTHENTICATE*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH/AUTHORIZE*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH/AUTHORIZE*">*OAUTH/AUTHORIZE*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*OAUTH/REQUEST-TOKEN*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*OAUTH/REQUEST-TOKEN*">*OAUTH/REQUEST-TOKEN*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li><li>
+                <a name="SOUTH:*SERVER-PORT*"/>
+                <article>
+                  <header>
+                    <span>SPECIAL</span>
+                    <code>
+                      <h4><a href="#SOUTH:*SERVER-PORT*">*SERVER-PORT*</a></h4>
+                      <span/>
+                      <span/>
+                    </code>
+                  </header>
+                  <pre/>
+                </article>
+              </li></ul>
           </li></ul>
       </article>
     </div>

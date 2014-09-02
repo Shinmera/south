@@ -10,11 +10,12 @@
 
 (defsystem south
   :name "South"
-  :version "0.2.3"
+  :version "0.2.4"
   :license "Artistic"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "Simple OaUTH library for oAuth1.0"
+  :homepage "https://github.com/Shinmera/south"
   :serial T
   :components ((:file "package")
                (:file "toolkit")
@@ -23,8 +24,3 @@
                :uuid
                :ironclad
                :cl-ppcre))
-
-;; (defsystem south-doc
-;;   :name "South Doc"
-;;   :components ((:file "documentation"))
-;;   :depends-on (:colleen :lquery-doc))
