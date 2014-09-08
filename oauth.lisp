@@ -259,7 +259,7 @@ This is the same as the redirect mechanism, except it starts up
 a Hunchentoot server automatically and handles the callback for
 you. The server will be started on *SERVER-PORT* and will be shut
 down automatically after a single request."
-  (assert (asdf:find-system "hunchentoot") () "Please install hunchentoot before using this authentication method.")
+  (assert (asdf:find-system "hunchentoot" NIL) () "Please install hunchentoot before using this authentication method.")
   (asdf:load-system "hunchentoot")
   (labels ((ht-symb (name)
              (find-symbol name "HUNCHENTOOT"))
