@@ -275,7 +275,7 @@ down automatically after a single request."
                    (lambda (&rest args)
                      (declare (ignore args))
                      (unwind-protect
-                          (progn
+                          (handler-bind ((error #'invoke-debugger))
                             (complete-authentication
                              (ht-func "GET-PARAMETER" "oauth_verifier")
                              (ht-func "GET-PARAMETER" "oauth_token"))
