@@ -57,4 +57,5 @@
   (:export
    #:*external-format*
    #:url-encode
+   #:url-decode
    #:generate-nonce))

@@ -53,6 +53,20 @@ According to spec https://dev.twitter.com/docs/auth/percent-encoding-parameters"
                     (write-char char out))
                    (t (format out "%~2,'0x" (char-code char)))))))
 
+(defun url-decode (string &optional (external-format *external-format*))
+  "Returns a URL-decoded version of the string STRING external format EXTERNAL-FORMAT.
+
+According to spec https://dev.twitter.com/docs/auth/percent-encoding-parameters"
+  (let ((out (make-array (length string) :element-type '(unsigned-byte 8) :fill-pointer 0)))
+    (loop for i from 0 below (length string)
+          for char = (aref string i)
+          do (case char
+               (#\% (vector-push (parse-integer string :start (+ i 1) :end (+ i 3) :radix 16) out)
+                    (incf i 2))
+               (#\+ (vector-push (char-code #\Space) out))
+               (T (vector-push (char-code char) out)))
+          finally (return (flexi-streams:octets-to-string out :external-format external-format)))))
+
 (defun hmac (string keystring)
   "Returns a base-64 encoded string of the HMAC digest of the given STRING
 using the KEYSTRING as HMAC key. The encoding of *external-format* is used 
