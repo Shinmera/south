@@ -16,6 +16,7 @@
    #:*oauth-access-secret*
    #:*oauth-signature-method*
    #:*oauth-version*
+   #:*oauth-verifier-location*
    #:*server-port*
    #:*authentication-callback*
    #:*oauth/request-token*

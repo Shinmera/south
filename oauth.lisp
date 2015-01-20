@@ -12,6 +12,7 @@
 (defvar *oauth-access-secret* NIL)
 (defvar *oauth-signature-method* "HMAC-SHA1")
 (defvar *oauth-version* "1.0")
+(defvar *oauth-verifier-location* :parameters)
 (defvar *oauth/request-token* NIL)
 (defvar *oauth/authenticate* NIL)
 (defvar *oauth/authorize* NIL)
@@ -306,7 +307,7 @@ See OAUTH/AUTHORIZE, INITIATE-SERVER-AUTHENTICATION and OAUTH/AUTHENTICATE respe
 
 According to spec https://dev.twitter.com/docs/auth/implementing-sign-twitter"
   (oauth-response->alist
-   (signed-request *oauth/access-token* :parameters `(("oauth_verifier" . ,verifier)))))
+   (signed-request *oauth/access-token* *oauth-verifier-location* `(("oauth_verifier" . ,verifier)))))
 
 (defun complete-authentication (verifier &optional (token *oauth-access-token*))
   "Finishes the authentication procedure by retrieving the access token.
