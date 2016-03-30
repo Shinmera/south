@@ -1,3 +1,7 @@
+Please Use [North](https://shinmera.github.io/north/) Instead
+------------------------
+This library has been superseded by [North](https://shinmera.github.io/north/). Please use that instead, as its code based is an improvement from South in almost every respect and it includes the ability to provide the server side of the oAuth system as well.
+
 How To
 ------
 Load South through Quicklisp or ASDF:
