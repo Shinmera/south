@@ -4,10 +4,6 @@
   Author: Nicolas Hafner <shinmera@tymoon.eu>
 |#
 
-(defpackage org.tymoonnext.south.asdf
-  (:use :cl :asdf))
-(in-package :org.tymoonnext.south.asdf)
-
 (defsystem south
   :name "South"
   :version "0.3.0"
