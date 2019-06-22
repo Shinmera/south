@@ -7,7 +7,7 @@
 (defsystem south
   :name "South"
   :version "0.3.0"
-  :license "Artistic"
+  :license "zlib"
   :author "Nicolas Hafner <shinmera@tymoon.eu>"
   :maintainer "Nicolas Hafner <shinmera@tymoon.eu>"
   :description "Simple OaUTH library for oAuth1.0"
