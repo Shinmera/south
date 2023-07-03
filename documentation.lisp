@@ -1,9 +1,3 @@
-#|
- This file is a part of South
- (c) 2014 Shirakumo http://tymoon.eu (shinmera@tymoon.eu)
- Author: Nicolas Hafner <shinmera@tymoon.eu>
-|#
-
 (defpackage #:org.tymoonnext.south.doc
   (:use #:cl #:lquery #:lquery-doc)
   (:nicknames #:south-doc)
